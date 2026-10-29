@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:">
+<title>CR破甲助手 Mac 复刻</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── 顶栏（拖拽区；左侧留位给原生红绿灯） ── -->
+<div id="titlebar">
+  <div class="traffic-slot" aria-hidden="true"></div>
+  <div class="brand">
+    <span class="brand-mark">◤</span>
+    <span class="brand-name">CR<em>MAC</em></span>
+    <span class="brand-sub">破甲通道控制台</span>
+  </div>
+  <div class="tb-center">
+    <div class="search">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>
+      <input id="search-input" type="text" placeholder="搜索客户端  ⌘K" spellcheck="false">
+      <kbd id="search-kbd">⌘K</kbd>
+    </div>
+  </div>
+  <div class="tb-right">
+    <span class="guard-pill" id="guard-pill" title="守护：客户端清场后自动补打">
+      <span class="guard-dot"></span><span id="guard-pill-text">守护已开</span>
+    </span>
+    <div class="theme-menu" id="theme-menu">
+      <button class="theme-btn" id="theme-btn" title="切换主题（⌘⇧T 循环）">
+        <span class="theme-btn-dots" id="theme-btn-dots"><i></i><i></i><i></i></span>
+        <span id="theme-btn-label">深色</span>
+        <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 6.5 8 3l3.5 3.5"/><path d="M8 3v9"/></svg>
+      </button>
+      <div class="theme-pop" id="theme-pop" role="menu">
+        <button class="theme-opt" data-theme="dark" role="menuitem">
+          <span class="swatch sw-dark"></span><span class="theme-opt-name">深色</span><span class="theme-opt-sub">Linear 灰阶</span><span class="tick"></span>
+        </button>
+        <button class="theme-opt" data-theme="light" role="menuitem">
+          <span class="swatch sw-light"></span><span class="theme-opt-name">浅色</span><span class="theme-opt-sub">日光纸感</span><span class="tick"></span>
+        </button>
+        <button class="theme-opt" data-theme="midnight" role="menuitem">
+          <span class="swatch sw-midnight"></span><span class="theme-opt-name">午夜蓝</span><span class="theme-opt-sub">沉浸冷调</span><span class="tick"></span>
+        </button>
+        <button class="theme-opt" data-theme="contrast" role="menuitem">
+          <span class="swatch sw-contrast"></span><span class="theme-opt-name">高对比</span><span class="theme-opt-sub">无障碍</span><span class="tick"></span>
+        </button>
+        <div class="theme-sep"></div>
+        <button class="theme-opt" data-theme="system" role="menuitem">
+          <span class="swatch sw-system"></span><span class="theme-opt-name">跟随系统</span><span class="theme-opt-sub">外观联动 macOS</span><span class="tick"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="layout">
+  <!-- ── 侧栏 ── -->
+  <aside id="side">
+    <div class="side-scroll">
+      <div class="side-label">客户端 <span id="side-count" class="side-count"></span></div>
+      <nav id="client-list"></nav>
+
+      <div class="side-label" style="margin-top:22px">领域激活</div>
+      <div id="activation-box">
+        <div id="activation-chips"></div>
+        <div class="activation-hint">激活后按该领域入口执行；对客户端说「启动逆向领域」同样生效</div>
+      </div>
+
+      <div class="side-label" style="margin-top:22px">守护</div>
+      <label class="switch-row">
+        <span class="switch"><input type="checkbox" id="guard-toggle"><i></i></span>
+        <span class="switch-text">清场后自动补打 <b>5min</b></span>
+      </label>
+    </div>
+
+    <div class="side-foot">
+      <div class="version">CR-MAC · v<span id="ver"></span></div>
+    </div>
+  </aside>
+
+  <!-- ── 主区 ── -->
+  <main id="main">
+    <!-- 首页 -->
+    <section id="home-panel" class="view">
+      <div class="hero">
+        <h1>破甲通道控制台</h1>
+        <p class="hero-sub">对每个 AI 客户端：先「检查」预览改动 → 「注入」落地 → 「撤销」逐字还原。所有写入都有 pristine 备份。</p>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="cards" id="home-cards"></div>
+
+      <div class="panel-card">
+        <div class="panel-card-head">
+          <h2>载荷正文</h2>
+          <span class="panel-card-sub">注入前可编辑 · 保存到 ~/.cr-mac/payload-override.md</span>
+          <button class="btn btn-ghost" id="btn-payload-save">保存载荷</button>
+        </div>
+        <textarea id="payload-editor" spellcheck="false"></textarea>
+        <div class="panel-card-foot" id="payload-state"></div>
+      </div>
+    </section>
+
+    <!-- 客户端面板 -->
+    <section id="client-panel" class="view hidden">
+      <div class="crumb"><a id="crumb-home">客户端</a><svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3.5 10.5 8 6 12.5"/></svg><span id="crumb-name"></span></div>
+      <header class="panel-head">
+        <div class="client-avatar" id="panel-avatar"></div>
+        <div class="panel-title">
+          <h1 id="panel-name"></h1>
+          <div class="panel-dir" id="panel-dir"></div>
+        </div>
+        <span id="panel-badge" class="pill"></span>
+        <div class="panel-actions">
+          <button class="btn btn-ghost" id="btn-dry">
+            <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2.5 1.5"/></svg>兼容性检查
+          </button>
+          <button class="btn btn-primary" id="btn-inject">
+            <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.5 12.5 5v5L8 12.5 3.5 10V5L8 2.5z"/><path d="M8 7.5v5"/></svg>注入
+          </button>
+          <button class="btn btn-danger-ghost" id="btn-revoke">
+            <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8a5 5 0 1 0 1.5-3.5"/><path d="M3 3v2.5h2.5"/></svg>撤销
+          </button>
+        </div>
+      </header>
+      <div id="channel-list" class="channel-list"></div>
+    </section>
+
+    <!-- 日志 -->
+    <section class="panel-card log-card">
+      <div class="panel-card-head">
+        <h2>运行日志</h2>
+        <button class="btn btn-ghost btn-mini" id="btn-log-copy">复制</button>
+      </div>
+      <pre id="log"></pre>
+    </section>
+  </main>
+</div>
+
+<!-- Toast / 模态 -->
+<div id="toasts"></div>
+<div id="modal-mask" class="hidden">
+  <div id="modal" role="dialog" aria-modal="true">
+    <h3 id="modal-title"></h3>
+    <pre id="modal-body"></pre>
+    <div class="modal-actions"><button class="btn btn-primary" id="modal-ok">知道了</button></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "cr-pojia-mac",
+  "productName": "CR破甲助手 Mac 复刻",
+  "version": "1.0.0-mac.1",
+  "private": true,
+  "description": "CR破甲助手 Mac 复刻版 · 本机工程人格注入引擎（逆向重写，个人研究用途）",
+  "main": "electron/main.js",
+  "author": "mac-port",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "cli": "node electron/cli.js"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
